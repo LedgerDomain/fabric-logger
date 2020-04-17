@@ -1,12 +1,12 @@
 # Splunk Connect for Hyperledger Fabric
 
-They Splunk Connect for Hyperledger Fabric sends blocks and transactions from a Hyperledger Fabric distributed ledger to Splunk for analytics. It's recommended (but not required) that this is used with Splunk App for Hyperledger Fabric. This app can also send blocks and transactions to stdout with use for any other system.
+The Splunk Connect for Hyperledger Fabric sends blocks and transactions from a Hyperledger Fabric distributed ledger to Splunk for analytics. It's recommended (but not required) that this is used with Splunk App for Hyperledger Fabric. This app can also send blocks and transactions to stdout with use for any other system.
 
-Currently the fabric-logger only supports connecting to 1 peer at a time, so you will have to deploy multiple instances of the fabric-logger for each peer that you want to connect to. Each fabric-logger instance can monitor multiple channels for the peer its connected to.
+Currently the fabric-logger supports connecting to 1 peer at a time, so you will have to deploy multiple instances of the fabric-logger for each peer that you want to connect to. Each fabric-logger instance can monitor multiple channels for the peer it is connected to.
 
 ## Fabric ACLs Required for Splunk Connect for Hyperledger Fabric
 
-User authentication in Hyperledger Fabric depends on a private key and a signed certificate. If using the `cryptogen` tool, these files will be found in the the following directories (see also `helm-chart/fabric-logger/templates/secret.yaml`):
+User authentication in Hyperledger Fabric depends on a private key and a signed certificate. If using the `cryptogen` tool, these files will be found in the following directories (see also `helm-chart/fabric-logger/templates/secret.yaml`):
 
 -   Signed Certificate: `crypto-config/peerOrganizations/<org-domain>/users/<username>@<org-domain>/msp/signcerts/<username>@<org-domain>-cert.pem`
 -   Private Key: `crypto-config/peerOrganizations/<org-domain>/users/<username>@<org-domain>/msp/keystore/*_sk`
@@ -15,9 +15,15 @@ Additionally, Hyperledger Fabric users depend on ACLs defined in the `configtx.y
 
 ## Activating Fabric Logger
 
-Once the fabric logger starts up, it will attempt to connect to its configured peer. If you want to have it start listening on a channel, you can use the following HTTP endpoint:
+Once the fabric logger starts up, it will attempt to connect to its configured peer. If you want to have it start listening on a channel, you can use the following HTTP endpoints:
 
-    curl http://fabric-logger:8080/channels/${CHANNEL_NAME}
+### Ledger Blocks and Transactions
+
+    curl -X PUT http://fabric-logger:8080/channels/${CHANNEL_NAME}
+
+### Chaincode events
+
+    curl -X PUT -H "Content-Type: application/json" -d '{"filter":"${EVENT_REGULAR_EXPRESSION}"}' http://fabric-logger:8080/channels/${CHANNEL_NAME}/events/${CHAINCODE_ID}
 
 ## Running in Docker
 
@@ -33,8 +39,7 @@ Running the Fabric Logger in Docker is recommended. A sample docker-compose entr
                 - FABRIC_MSP=<msp name>
                 - FABRIC_PEER=peer0.example.com
                 - SPLUNK_HEC_TOKEN=12345678-ABCD-EFGH-IJKL-123456789012
-                - SPLUNK_HOST=splunk.example.com
-                - SPLUNK_PORT=8088
+                - SPLUNK_HEC_URL=https://splunk.example.com:8088
                 - SPLUNK_INDEX=hyperledger_logs
                 - LOGGING_LOCATION=splunk
                 - NETWORK_CONFIG=network.yaml
@@ -66,8 +71,7 @@ We also include a helm chart for Kubernetes deployments. First set your `values.
     splunk:
         hec:
             token: 12345678-ABCD-EFGH-IJKL-123456789012
-            port: 8088
-            host: splunk-splunk-kube.splunk.svc.cluster.local
+            url: https://splunk-splunk-kube.splunk.svc.cluster.local:8088
         index: hyperledger_logs
 
     secrets:
@@ -146,9 +150,10 @@ You will also need to update the `network.yaml` with appropriate values for you 
 | FABRIC_PEER            | The hostname of the peer to connect to.                                                                                                                  | None (Required)    |
 | LOGGING_LOCATION       | The logging location, valid values are `splunk` or `stdout`.                                                                                             | `splunk`           |
 | SPLUNK_HEC_TOKEN       | If using `splunk` as the logging location, the HEC token value.                                                                                          | None               |
-| SPLUNK_HOST            | Splunk hostname.                                                                                                                                         | None               |
-| SPLUNK_PORT            | Splunk HEC port.                                                                                                                                         | `8088`             |
+| SPLUNK_HEC_URL         | If using `splunk` as the logging location, the url to the splunk instance event collector.                                                               | None               |
+| SPLUNK_HOST DEPRECATED | Splunk hostname. DEPRECATED Please use SPLUNK_HEC_URL.                                                                                                   | None               |
+| SPLUNK_PORT DEPRECATED | Splunk HEC port. DEPRECATED Please use SPLUNK_HEC_URL.                                                                                                   | `8088`             |
 | SPLUNK_INDEX           | Splunk index to log to.                                                                                                                                  | `hyperledger_logs` |
-| NETWORK_CONFIG         | A network configuration object, an example can be found [here](https://fabric-sdk-node.github.io/release-1.4/tutorial-network-config.html)               | None (Required)    |
+| NETWORK_CONFIG         | A network configuration object, an example can be found [here](https://hyperledger.github.io/fabric-sdk-node/release-1.4/tutorial-network-config.html)   | None (Required)    |
 | CHECKPOINTS_FILE       | A file used to hold checkpoints for each channel watched. If running in docker, be sure to mount a volume so that the file is not lost between restarts. | `.checkpoints`     |
 | SOURCETYPE_PREFIX      | A prefix used for the sourcetype when writing to Splunk.                                                                                                 | `fabric_logger:`   |
