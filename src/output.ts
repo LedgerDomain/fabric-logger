@@ -65,7 +65,7 @@ export async function writeEventToFile(event: SendContext) {
 export function initializeLogOutput() {
     switch (LOGGING_LOCATION) {
         case 'splunk':
-            const url = 'https://' + SPLUNK_HOST + ':' + SPLUNK_PORT;
+            const url = 'http://' + SPLUNK_HOST + ':' + SPLUNK_PORT;
             currentLogger = new SplunkLogger({ token: SPLUNK_HEC_TOKEN, url });
             (currentLogger as any).eventFormatter = (event: any): any => event;
             info(`Using Splunk HEC at ${url}`);
