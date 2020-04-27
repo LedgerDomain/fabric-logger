@@ -21,6 +21,7 @@ echo "Splunk HEC token: $SPLUNK_HEC_TOKEN"
 export FABRIC_MSP=org0MSP
 export FABRIC_LOGGER_USERNAME=peer0-admin
 export FABRIC_PEER=org0.peer0
+#export LOGGING_LOCATION=stdout
 export LOGGING_LOCATION=splunk
 export NETWORK_CONFIG=network.yaml
 export HFC_LOGGING='{"info":"console"}'
