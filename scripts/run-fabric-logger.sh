@@ -1,6 +1,17 @@
 #!/bin/bash
 
-RUN_CMD="node ../dist/main.js"
+FABRIC_LOGGER_HOME=$HOME/splunk-fabric-logger/fabric-logger
+RUN_CMD="node dist/main.js"
+
+# CLI arguments are the output file locations
+if [[ $# -eq 1 ]]; then
+    echo "redirecting stdout and stderr to $1"
+    RUN_CMD="$RUN_CMD >$1 2>&1"
+elif [[ $# -eq 2 ]]; then
+        echo "Redirecting stdout to $1 and stderr to $2"
+        RUN_CMD="$RUN_CMD 1>$1 2>$2"
+    fi
+fi
 
 export SVBE_HOME=/home/ubuntu/src/svbe
 export ADMIN_MSP_DIR_ORG=${SVBE_HOME}/org0-docuseal-server/peer0-admin/msp
@@ -28,4 +39,5 @@ export LOGGING_LOCATION=splunk
 export NETWORK_CONFIG=network.yaml
 export HFC_LOGGING='{"info":"console"}'
 
-$RUN_CMD
+cd $FABRIC_LOGGER_HOME
+bash -c "$RUN_CMD"
