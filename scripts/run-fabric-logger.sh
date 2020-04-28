@@ -1,5 +1,7 @@
 #!/bin/bash
 
+RUN_CMD="node ../dist/main.js"
+
 export SVBE_HOME=/home/ubuntu/src/svbe
 export ADMIN_MSP_DIR_ORG=${SVBE_HOME}/org0-docuseal-server/peer0-admin/msp
 export CERT_ORG=$(find ${ADMIN_MSP_DIR_ORG}/signcerts/*.pem -type f)
@@ -26,4 +28,4 @@ export LOGGING_LOCATION=splunk
 export NETWORK_CONFIG=network.yaml
 export HFC_LOGGING='{"info":"console"}'
 
-node dist/main.js
+$RUN_CMD

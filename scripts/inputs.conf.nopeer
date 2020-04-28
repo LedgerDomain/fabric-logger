@@ -1,0 +1,15 @@
+[monitor:///home/ubuntu/remotes/orgs/org0/orderers/orderer0/logs]
+sourcetype = selvedge:org0.orderer0
+index = selvedge_logs
+disabled = false
+
+[monitor:///home/ubuntu/remotes/orgs/org0/fabric-ca-servers/ca/logs]
+sourcetype = selvedge:org0.ca
+index = selvedge_logs
+disabled = false
+
+[monitor:///home/ubuntu/src/svbe/org0-docuseal-server/logs]
+sourcetype = selvedge:org0.appserver
+index = selvedge_logs
+initCrcLength = 3000
+disabled = false

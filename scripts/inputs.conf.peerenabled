@@ -1,0 +1,5 @@
+[monitor:///home/ubuntu/remotes/orgs/org0/peers/peer0/logs]
+sourcetype = selvedge:org0.peer0
+index = selvedge_logs
+disabled = false
+
